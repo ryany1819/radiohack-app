@@ -13,6 +13,10 @@ const api = {
       console.log('rect=', rect)
       callback()
     })
+    ipcRenderer.on('crop-screen:error', (_, err) => {
+      console.error('Error:', err)
+      alert(err)
+    })
   }
 }
 

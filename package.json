@@ -16,9 +16,9 @@
     "build": "npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
-    "build:win": "cross-env PLATFORM=win node build-electron.js",
-    "build:mac": "cross-env PLATFORM=mac node build-electron.js",
-    "build:linux": "cross-env PLATFORM=linux build-electron.js"
+    "build:win": "./build-electron.sh win",
+    "build:mac": "./build-electron.sh mac",
+    "build:linux": "./build-electron.sh linux"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -32,7 +32,6 @@
     "@electron/fuses": "^1.8.0",
     "@types/node": "^20.14.8",
     "@types/screenshot-desktop": "^1.12.3",
-    "cross-env": "^7.0.3",
     "electron": "^31.0.2",
     "electron-builder": "^25.1.8",
     "electron-vite": "^2.3.0",

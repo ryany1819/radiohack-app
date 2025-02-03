@@ -5,7 +5,6 @@ import screenshot from 'screenshot-desktop'
 import * as fs from 'fs'
 
 function createMainWindow({ width, height }): void {
-  
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width,
@@ -47,7 +46,7 @@ function createMainWindow({ width, height }): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  const primaryDisplay = screen.getPrimaryDisplay();
+  const primaryDisplay = screen.getPrimaryDisplay()
   const screenSize: Electron.Size = primaryDisplay.workAreaSize
   const scaleFactor = primaryDisplay.scaleFactor
   // Set app user model id for windows
@@ -64,13 +63,24 @@ app.whenReady().then(() => {
       event.sender.send('crop-screen:success', rect)
       screenshot()
         .then((imgBuffer) => {
-          const img = nativeImage.createFromBuffer(imgBuffer, {scaleFactor})
+          const img = nativeImage.createFromBuffer(imgBuffer, { scaleFactor })
           const croppedImg = img.crop(rect)
-          const outputPath = join(__dirname, '../../out/cropped.png')
-          fs.writeFileSync(outputPath, croppedImg.toPNG())
-          console.log(`Cropped image save to ${outputPath}`)
+
+          const outputDir = app.getPath('pictures')
+          const outputPath = join(outputDir, 'cropped.png')
+
+          try {
+            fs.writeFileSync(outputPath, croppedImg.toPNG())
+            console.log(`Cropped image save to ${outputPath}`)
+          } catch (err) {
+            console.error('Failed to save cropped image:', err)
+            event.sender.send('crop-screen:error', 'Failed to save the image.')
+          }
         })
-        .catch((err) => console.error(err))
+        .catch((err) => {
+          console.error('Failed to capture screenshot:', err)
+          event.sender.send('crop-screen:error', 'Failed to capture the screen.')
+        })
     }
   )
   createMainWindow(screenSize)
