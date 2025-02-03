@@ -1,0 +1,28 @@
+@import './base.css';
+
+#overlay {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.65);
+  cursor: crosshair;
+}
+
+#selection-box {
+  position: absolute;
+  border: 2px dashed #fff;
+  display: none;
+}
+#dimension-text {
+  position:relative;
+  user-select: none;
+  color: red;
+  border: 1px solid black;
+  background: green;
+  white-space: nowrap;
+  z-index: 100;
+}
