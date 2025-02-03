@@ -3,10 +3,9 @@ import { join } from 'path'
 import { electronApp, is } from '@electron-toolkit/utils'
 import screenshot from 'screenshot-desktop'
 import * as fs from 'fs'
-// const screenshot = require('screenshot-desktop')
 
-function createMainWindow(): void {
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize
+function createMainWindow({ width, height }): void {
+  
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width,
@@ -48,8 +47,11 @@ function createMainWindow(): void {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const screenSize: Electron.Size = primaryDisplay.workAreaSize
+  const scaleFactor = primaryDisplay.scaleFactor
   // Set app user model id for windows
-  electronApp.setAppUserModelId('com.radiohack')
+  electronApp.setAppUserModelId('io.radiohack')
 
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
@@ -58,11 +60,11 @@ app.whenReady().then(() => {
   ipcMain.on(
     'crop-screen',
     (event, rect: { x: number; y: number; width: number; height: number }) => {
-      console.log('crop-screen!!')
+      console.log('crop-screen!!', rect)
       event.sender.send('crop-screen:success', rect)
       screenshot()
         .then((imgBuffer) => {
-          const img = nativeImage.createFromBuffer(imgBuffer)
+          const img = nativeImage.createFromBuffer(imgBuffer, {scaleFactor})
           const croppedImg = img.crop(rect)
           const outputPath = join(__dirname, '../../out/cropped.png')
           fs.writeFileSync(outputPath, croppedImg.toPNG())
@@ -71,12 +73,12 @@ app.whenReady().then(() => {
         .catch((err) => console.error(err))
     }
   )
-  createMainWindow()
+  createMainWindow(screenSize)
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
+    if (BrowserWindow.getAllWindows().length === 0) createMainWindow(screenSize)
   })
 })
 
