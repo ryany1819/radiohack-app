@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A minimal Electron application with TypeScript",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "Ryan Yang",
   "homepage": "https://electron-vite.org",
   "scripts": {
     "format": "prettier --write .",
@@ -29,7 +29,6 @@
     "@electron-toolkit/eslint-config-prettier": "^2.0.0",
     "@electron-toolkit/eslint-config-ts": "^2.0.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
-    "@electron/fuses": "^1.8.0",
     "@types/node": "^20.14.8",
     "@types/screenshot-desktop": "^1.12.3",
     "electron": "^31.0.2",
@@ -39,10 +38,5 @@
     "prettier": "^3.3.2",
     "typescript": "^5.7.3",
     "vite": "^5.3.1"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ]
   }
 }
