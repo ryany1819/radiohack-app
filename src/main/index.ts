@@ -1,8 +1,8 @@
 import { app, shell, BrowserWindow, ipcMain, screen, nativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, is } from '@electron-toolkit/utils'
-import screenshot from 'screenshot-desktop'
-import * as fs from 'fs'
+import { captureScreen } from './captureScreen'
+import { healthcheck, ocrImageToText } from './ocrImageToText'
 
 function createMainWindow({ width, height }): void {
   // Create the browser window.
@@ -58,29 +58,48 @@ app.whenReady().then(() => {
   // IPC crop-screen
   ipcMain.on(
     'crop-screen',
-    (event, rect: { x: number; y: number; width: number; height: number }) => {
+    async (event, rect: { x: number; y: number; width: number; height: number }) => {
       console.log('crop-screen!!', rect)
-      event.sender.send('crop-screen:success', rect)
-      screenshot()
-        .then((imgBuffer) => {
-          const img = nativeImage.createFromBuffer(imgBuffer, { scaleFactor })
-          const croppedImg = img.crop(rect)
-
-          const outputDir = app.getPath('pictures')
-          const outputPath = join(outputDir, 'cropped.png')
-
-          try {
-            fs.writeFileSync(outputPath, croppedImg.toPNG())
-            console.log(`Cropped image save to ${outputPath}`)
-          } catch (err) {
-            console.error('Failed to save cropped image:', err)
-            event.sender.send('crop-screen:error', 'Failed to save the image.')
-          }
+      const outputDir = app.getPath('pictures')
+      const outputPath = join(outputDir, 'cropped.png')
+      const res = await healthcheck()
+      console.log(await res.json())
+      captureScreen(rect, scaleFactor, outputPath)
+        .then(({msg, imgPath}) => {
+          console.log(msg)
+          ocrImageToText(imgPath).then((result) => {
+            console.log('OCR result=', result)
+            event.sender.send('crop-screen:success', result)
+          }).catch((err) => {
+            console.error(err)
+            event.sender.send('crop-screen:error', err)
+          })
         })
         .catch((err) => {
-          console.error('Failed to capture screenshot:', err)
-          event.sender.send('crop-screen:error', 'Failed to capture the screen.')
+          console.error(err)
+          event.sender.send('crop-screen:error', err)
         })
+
+      // screenshot()
+      //   .then((imgBuffer) => {
+      //     const img = nativeImage.createFromBuffer(imgBuffer, { scaleFactor })
+      //     const croppedImg = img.crop(rect)
+
+      //     const outputDir = app.getPath('pictures')
+      //     const outputPath = join(outputDir, 'cropped.png')
+
+      //     try {
+      //       fs.writeFileSync(outputPath, croppedImg.toPNG())
+      //       console.log(`Cropped image save to ${outputPath}`)
+      //     } catch (err) {
+      //       console.error('Failed to save cropped image:', err)
+      //       event.sender.send('crop-screen:error', 'Failed to save the image.')
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.error('Failed to capture screenshot:', err)
+      //     event.sender.send('crop-screen:error', 'Failed to capture the screen.')
+      //   })
     }
   )
   createMainWindow(screenSize)
@@ -103,3 +122,6 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+// const ocrImageToText = () => {
+//   const buffer = fs.readFileSync('')
+// }

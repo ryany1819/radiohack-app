@@ -9,12 +9,12 @@ const api = {
   },
   onCropScreenSuccess: (callback: () => void) => {
     console.log('oncropscreensuccess bound')
-    ipcRenderer.on('crop-screen:success', (_, rect) => {
-      console.log('rect=', rect)
+    ipcRenderer.on('crop-screen:success', (_, msg) => {
+      console.log('msg=', msg)
       callback()
     })
     ipcRenderer.on('crop-screen:error', (_, err) => {
-      console.error('Error:', err)
+      console.error('Screenshot error:', err)
       alert(err)
     })
   }
