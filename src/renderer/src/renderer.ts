@@ -12,6 +12,7 @@ document.addEventListener('mousedown', (e: MouseEvent) => {
   selectionBox.style.width = '0';
   selectionBox.style.height = '0';
   selectionBox.style.display = 'block';
+  selectionBox.style.background = 'transparent';
 })
 
 document.addEventListener('mousemove', (e: MouseEvent) => {
@@ -35,6 +36,7 @@ document.addEventListener('mouseup', async () => {
     height: Math.abs(endY - startY),
   }
   console.log('about to send crop-screen')
+  overlay.style.background = 'transparent';
   // @ts-ignore
   await window.api.cropScreen(rect);
 })
@@ -42,5 +44,4 @@ document.addEventListener('mouseup', async () => {
 // @ts-ignore
 window.api.onCropScreenSuccess(() => {
   selectionBox.style.display = 'none';
-  overlay.style.background = 'transparent';
 });
