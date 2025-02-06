@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, screen, globalShortcut } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, screen, globalShortcut, clipboard } from 'electron'
 import { join } from 'path'
 import { electronApp, is } from '@electron-toolkit/utils'
 import { captureScreen } from './captureScreen'
@@ -56,7 +56,7 @@ app.whenReady().then(() => {
   globalShortcut.register('Escape', () => {
     app.quit()
   })
-  
+
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
@@ -74,6 +74,7 @@ app.whenReady().then(() => {
           console.log(msg)
           ocrImageToText(imgPath).then((result) => {
             console.log('OCR result=', result)
+            clipboard.writeText(result)
             event.sender.send('crop-screen:success', result)
           }).catch((err) => {
             console.error(err)
