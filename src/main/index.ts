@@ -67,8 +67,6 @@ app.whenReady().then(() => {
       console.log('crop-screen!!', rect)
       const outputDir = app.getPath('pictures')
       const outputPath = join(outputDir, 'cropped.png')
-      const res = await healthcheck()
-      console.log(await res.json())
       captureScreen(rect, scaleFactor, outputPath)
         .then(({msg, imgPath}) => {
           console.log(msg)
