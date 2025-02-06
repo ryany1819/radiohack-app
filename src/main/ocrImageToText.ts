@@ -2,8 +2,11 @@ import fs from 'fs'
 import path from 'path'
 
 export function ocrImageToText(inputPath) {
-  return new Promise((resolve, reject) => {
+  return new Promise<string>((resolve, reject) => {
     fs.readFile(inputPath, (err, data) => {
+      if (err) {
+        return reject(`Failed to load cropped screenshot file: ${err}`)
+      }
       const formData = new FormData()
       const blob = new Blob([data], { type: 'image/png' }) // Convert Buffer to Blob
       formData.append('file', blob, path.basename(inputPath))
