@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 
 export function ocrImageToText(inputPath) {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<{extracted_text: string}>((resolve, reject) => {
     fs.readFile(inputPath, (err, data) => {
       if (err) {
         return reject(`Failed to load cropped screenshot file: ${err}`)

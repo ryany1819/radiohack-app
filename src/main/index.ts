@@ -74,7 +74,7 @@ app.whenReady().then(() => {
           console.log(msg)
           ocrImageToText(imgPath).then((result) => {
             console.log('OCR result=', result)
-            clipboard.writeText(result)
+            clipboard.writeText(result.extracted_text)
             event.sender.send('crop-screen:success', result)
           }).catch((err) => {
             console.error(err)
