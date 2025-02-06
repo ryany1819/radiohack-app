@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, screen, nativeImage } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, screen, globalShortcut } from 'electron'
 import { join } from 'path'
 import { electronApp, is } from '@electron-toolkit/utils'
 import { captureScreen } from './captureScreen'
@@ -52,6 +52,11 @@ app.whenReady().then(() => {
   // Set app user model id for windows
   electronApp.setAppUserModelId('io.radiohack')
 
+  // ESC hotkey
+  globalShortcut.register('Escape', () => {
+    app.quit()
+  })
+  
   // IPC test
   ipcMain.on('ping', () => console.log('pong'))
 
