@@ -2,15 +2,11 @@ import { app, shell, BrowserWindow, ipcMain, screen, globalShortcut, clipboard }
 import { join } from 'path'
 import { electronApp, is } from '@electron-toolkit/utils'
 import { captureScreen } from './captureScreen'
-import { healthcheck, ocrImageToText } from './ocrImageToText'
+import { ocrImageToText } from './ocrImageToText'
 
-function createMainWindow({ width, height }): void {
+function createMainWindow(): BrowserWindow {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width,
-    height,
-    x: 0,
-    y: 0,
     transparent: true,
     frame: false,
     alwaysOnTop: true,
@@ -23,7 +19,7 @@ function createMainWindow({ width, height }): void {
       sandbox: false
     }
   })
-
+  if (!mainWindow.isMaximized()) mainWindow.maximize()
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
@@ -40,21 +36,37 @@ function createMainWindow({ width, height }): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  return mainWindow
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
-  const primaryDisplay = screen.getPrimaryDisplay()
-  const screenSize: Electron.Size = primaryDisplay.workAreaSize
-  const scaleFactor = primaryDisplay.scaleFactor
   // Set app user model id for windows
   electronApp.setAppUserModelId('io.radiohack')
 
+  const primaryDisplay = screen.getPrimaryDisplay()
+  // const screenSize: Electron.Size = primaryDisplay.workAreaSize
+  const scaleFactor = primaryDisplay.scaleFactor
+  const mainWindow = createMainWindow()
+
   // ESC hotkey
   globalShortcut.register('Escape', () => {
+    console.debug('ESC detected.')
     app.quit()
+  })
+
+  // Alt + R hotkey
+  globalShortcut.register('Alt+R', () => {
+    console.debug('Alt + R detected.');
+    if (!mainWindow) {
+      console.error('Main window is not available.');
+      return;
+    }
+    console.debug('Sending prep-screencrop event to renderer.');
+    mainWindow.webContents.send('prep-screencrop');
   })
 
   // IPC test
@@ -68,20 +80,22 @@ app.whenReady().then(() => {
       const outputDir = app.getPath('pictures')
       const outputPath = join(outputDir, 'cropped.png')
       captureScreen(rect, scaleFactor, outputPath)
-        .then(({msg, imgPath}) => {
+        .then(({ msg, imgPath }) => {
           console.log(msg)
-          ocrImageToText(imgPath).then((result) => {
-            console.log('OCR result=', result)
-            clipboard.writeText(result.extracted_text)
-            event.sender.send('crop-screen:success', result)
-          }).catch((err) => {
-            console.error(err)
-            event.sender.send('crop-screen:error', err)
-          })
+          ocrImageToText(imgPath)
+            .then((result) => {
+              console.log('OCR result=', result)
+              clipboard.writeText(result.extracted_text)
+              event.sender.send('oncropscreen:success', result)
+            })
+            .catch((err) => {
+              console.error(err)
+              event.sender.send('oncropscreen:error', err)
+            })
         })
         .catch((err) => {
           console.error(err)
-          event.sender.send('crop-screen:error', err)
+          event.sender.send('oncropscreen:error', err)
         })
 
       // screenshot()
@@ -106,12 +120,21 @@ app.whenReady().then(() => {
       //   })
     }
   )
-  createMainWindow(screenSize)
+
+  ipcMain.on('ditchwindow', () => {
+    console.debug('ditchwindow event.')
+    //mainWindow.blur()
+  })
+
+  ipcMain.on('closewindow', () => {
+    console.debug('closewindow event.')
+    mainWindow.close()
+  })
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createMainWindow(screenSize)
+    if (BrowserWindow.getAllWindows().length === 0) createMainWindow()
   })
 })
 
@@ -126,6 +149,3 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
-// const ocrImageToText = () => {
-//   const buffer = fs.readFileSync('')
-// }

@@ -1,38 +1,57 @@
-import { contextBridge, ipcRenderer } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { contextBridge, ipcRenderer } from 'electron';
+import { electronAPI } from '@electron-toolkit/preload';
+
+declare global {
+  interface Window {
+    electron: typeof electronAPI;
+    api: {
+      ditchWindow: () => void;
+      onScreenCropStartV2: (
+        handler: (cb: (rect: { x: number; y: number; width: number; height: number }) => void) => void,
+        onSuccess: () => void,
+        onError: (err: string) => void
+      ) => void;
+    };
+  }
+}
+
+function cropScreen(rect: { x: number; y: number; width: number; height: number }) {
+  console.log('cropscreen');
+  ipcRenderer.send('crop-screen', rect);
+}
 
 // Custom APIs for renderer
 const api = {
-  cropScreen: (rect: { x: number; y: number; width: number; height: number }) => {
-    console.log('cropscreen')
-    ipcRenderer.send('crop-screen', rect)
+  ditchWindow: () => {
+    ipcRenderer.send('ditchwindow');
+    console.debug('ipcRenderer: ditchwindow event sent.');
   },
-  onCropScreenSuccess: (callback: () => void) => {
-    console.log('oncropscreensuccess bound')
-    ipcRenderer.on('crop-screen:success', (_, msg) => {
-      console.log('msg=', msg)
-      callback()
-    })
-    ipcRenderer.on('crop-screen:error', (_, err) => {
-      console.error('Screenshot error:', err)
-      alert(err)
-    })
+  onScreenCropStartV2: (
+    handler: (cb: (rect: { x: number; y: number; width: number; height: number }) => void) => void,
+    onSuccess: () => void,
+    onError: (err: string) => void
+  ) => {
+    console.debug('Listening for prep-screencrop event.');
+    ipcRenderer.on('prep-screencrop', () => {
+      console.debug('prep-screencrop event received.');
+      ipcRenderer.on('oncropscreen:success', onSuccess);
+      ipcRenderer.on('oncropscreen:error', (_, err) => onError(err));
+    });
+    handler(cropScreen);
   }
-}
+};
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
 // just add to the DOM global.
 if (process.contextIsolated) {
   try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('electron', electronAPI);
+    contextBridge.exposeInMainWorld('api', api);
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
 } else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
+  window.electron = electronAPI;
+  window.api = api;
 }

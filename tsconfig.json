@@ -1,4 +1,11 @@
+// filepath: /home/ryany/code/radiohack-app/tsconfig.json
 {
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./src/preload"]
+  },
   "files": [],
-  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.web.json" }]
+  "references": [
+    { "path": "./tsconfig.node.json" },
+    { "path": "./tsconfig.web.json" }
+  ]
 }
