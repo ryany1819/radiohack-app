@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Check if the correct number of arguments are provided
-if [ "$#" -ne 4 ]; then
-  echo "Usage: $0 <feature-branch> <tag-name> <release-title> <platform>"
+if [ "$#" -ne 3 ]; then
+  echo "Usage: $0 <tag-name> <release-title> <platform>"
   echo ""
   echo "Examples for tag-name:"
   echo "  Official release: v1.0.0"
@@ -13,10 +13,11 @@ if [ "$#" -ne 4 ]; then
   exit 1
 fi
 
-FEATURE_BRANCH=$1
-TAG_NAME=$2
-RELEASE_TITLE=$3
-PLATFORM=$4
+# Get the current branch name
+FEATURE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+TAG_NAME=$1
+RELEASE_TITLE=$2
+PLATFORM=$3
 
 # Merge the feature branch into the master branch
 git checkout master
