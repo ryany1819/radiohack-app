@@ -22,11 +22,15 @@ PLATFORM=$4
 git checkout master
 git merge $FEATURE_BRANCH
 
+# Extract version from package.json without using jq
+VERSION=$(grep '"version"' package.json | sed -E 's/.*"version": "([^"]+)".*/\1/')
+echo "Extracted version: $VERSION"
+
 # Run the build script based on the platform
 case $PLATFORM in
   win)
     pnpm build:win
-    ARTIFACT_PATH="./dist/radiohack-app-$TAG_NAME-setup.exe"
+    ARTIFACT_PATH="./dist/radiohack-app-$VERSION-setup.exe"
     ;;
   mac)
     pnpm build:mac
