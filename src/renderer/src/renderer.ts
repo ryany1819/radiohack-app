@@ -1,6 +1,7 @@
 const selectionBox = document.getElementById('selection-box') as HTMLDivElement
 const overlay = document.getElementById('overlay') as HTMLDivElement
 const dimensionText = document.getElementById('dimension-text') as HTMLSpanElement
+const textOverlay = document.getElementById('text-overlay') as HTMLDivElement
 let isDrawing = false
 let startX: number, startY: number, endX: number, endY: number
 
@@ -12,7 +13,7 @@ const handleMouseDown = (e: MouseEvent) => {
   selectionBox.style.top = `${startY}px`
   selectionBox.style.width = '0'
   selectionBox.style.height = '0'
-  dimensionText.textContent = ''
+
 }
 
 const handleMouseMove = (e: MouseEvent) => {
@@ -23,11 +24,20 @@ const handleMouseMove = (e: MouseEvent) => {
   const top = Math.min(startY, endY)
   const width = Math.abs(endX - startX)
   const height = Math.abs(endY - startY)
+  const [px1, px2, py1, py2] = [left + 2, left + width - 2, top + 2,  top + height - 2]
+  overlay.style.maskImage = `
+  linear-gradient(to right, black ${px1}px, transparent ${px1}px ${px2}px, black ${px2}px),
+  linear-gradient(to bottom, black ${py1}px, transparent ${py1}px ${py2}px, black ${py2}px)`
   selectionBox.style.display = 'block'
   selectionBox.style.width = `${width}px`
   selectionBox.style.height = `${height}px`
   selectionBox.style.left = `${left}px`
   selectionBox.style.top = `${top}px`
+  const dimensionTextHeight = dimensionText.offsetHeight // Get the height of the dimension-text element
+  textOverlay.style.display = 'block'
+  textOverlay.style.display = 'block'
+  textOverlay.style.left = `${left}px`
+  textOverlay.style.top = `${top - dimensionTextHeight}px` // Position above the selection box
   dimensionText.textContent = `${left},${top} ${width}x${height}`
 }
 
@@ -39,7 +49,10 @@ const handleMouseUp = (cb: (rect: any) => void) => {
     width: Math.abs(endX - startX),
     height: Math.abs(endY - startY)
   }
+  overlay.style.maskImage = 'none'
   selectionBox.style.display = 'none'
+  textOverlay.style.display = 'none'
+  dimensionText.textContent = 'N'
   console.log('about to send crop-screen', rect)
   cb(rect)
 }
@@ -55,6 +68,7 @@ window.api.onScreenCropStartV2(
     overlay.addEventListener('mouseup', mouseUpHandler)
     overlay.style.opacity = '1'
     overlay.style.pointerEvents = 'auto'
+
   },
   () => {
     overlay.removeEventListener('mousedown', handleMouseDown)
