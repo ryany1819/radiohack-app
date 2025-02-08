@@ -36,8 +36,8 @@ const api = {
       console.debug('prep-screencrop event received.');
       ipcRenderer.on('oncropscreen:success', onSuccess);
       ipcRenderer.on('oncropscreen:error', (_, err) => onError(err));
+      handler(cropScreen);
     });
-    handler(cropScreen);
   }
 };
 
