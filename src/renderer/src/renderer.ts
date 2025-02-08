@@ -2,6 +2,7 @@ const selectionBox = document.getElementById('selection-box') as HTMLDivElement
 const overlay = document.getElementById('overlay') as HTMLDivElement
 const dimensionText = document.getElementById('dimension-text') as HTMLSpanElement
 const textOverlay = document.getElementById('text-overlay') as HTMLDivElement
+const wallpaper = document.getElementById('wallpaper') as HTMLDivElement
 let isDrawing = false
 let startX: number, startY: number, endX: number, endY: number
 
@@ -13,7 +14,6 @@ const handleMouseDown = (e: MouseEvent) => {
   selectionBox.style.top = `${startY}px`
   selectionBox.style.width = '0'
   selectionBox.style.height = '0'
-
 }
 
 const handleMouseMove = (e: MouseEvent) => {
@@ -59,26 +59,36 @@ const handleMouseUp = (cb: (rect: any) => void) => {
 
 let mouseUpHandler
 
+// Function to toggle between wallpaper and overlay
+const toggleOverlay = (showOverlay: boolean) => {
+  if (showOverlay) {
+    wallpaper.style.display = 'none';
+    overlay.style.display = 'block';
+  } else {
+    wallpaper.style.display = 'flex';
+    overlay.style.display = 'none';
+  }
+};
+
 // @ts-ignore
 window.api.onScreenCropStartV2(
   (cb: (rect: { x: number; y: number; width: number; height: number }) => void) => {
-    overlay.addEventListener('mousedown', handleMouseDown)
-    overlay.addEventListener('mousemove', handleMouseMove)
-    mouseUpHandler = () => handleMouseUp(cb)
-    overlay.addEventListener('mouseup', mouseUpHandler)
-    overlay.style.opacity = '1'
-    overlay.style.pointerEvents = 'auto'
-
+    toggleOverlay(true); // Show overlay when cropping starts
+    overlay.addEventListener('mousedown', handleMouseDown);
+    overlay.addEventListener('mousemove', handleMouseMove);
+    mouseUpHandler = () => handleMouseUp(cb);
+    overlay.addEventListener('mouseup', mouseUpHandler);
+    overlay.style.cursor = 'crosshair';
   },
   () => {
-    overlay.removeEventListener('mousedown', handleMouseDown)
-    overlay.removeEventListener('mousemove', handleMouseMove)
-    mouseUpHandler && overlay.removeEventListener('mouseup', mouseUpHandler)
-    overlay.style.opacity = '0'
-    overlay.style.pointerEvents = 'none'
+    overlay.removeEventListener('mousedown', handleMouseDown);
+    overlay.removeEventListener('mousemove', handleMouseMove);
+    mouseUpHandler && overlay.removeEventListener('mouseup', mouseUpHandler);
+    overlay.style.cursor = 'default';
+    toggleOverlay(false); // Show wallpaper when cropping ends
   },
   (err: string) => {
-    console.error(err)
-    alert(err)
+    console.error(err);
+    alert(err);
   }
 )

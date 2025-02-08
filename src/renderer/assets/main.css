@@ -1,16 +1,18 @@
 @import './base.css';
 
-#overlay {
+.fullscreen {
   position: fixed;
-  opacity: 0;
-  left: 0;
   top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
+}
+
+#overlay {
+  display: none; /* Ensure overlay is not displayed at the beginning */
   margin: 0;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.5);
-  cursor: crosshair;
+  background: rgba(0, 0, 0, 0.35);
 }
 
 #selection-box {
@@ -34,4 +36,13 @@
   border: 1px solid black;
   background: green;
   white-space: nowrap;
+}
+
+#wallpaper {
+  background-color: rgba(0, 0, 0, 0.85);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
 }
