@@ -9,7 +9,6 @@
 }
 
 #overlay {
-  display: none; /* Ensure overlay is not displayed at the beginning */
   margin: 0;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.4);

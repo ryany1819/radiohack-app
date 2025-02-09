@@ -50,6 +50,7 @@ const handleMouseUp = (cb: (rect: any) => void) => {
   }
   overlay.style.opacity = '0'
   overlay.style.maskImage = 'none'
+  overlay.style.cursor = 'progress'
   selectionBox.style.display = 'none'
   textOverlay.style.display = 'none'
   dimensionText.textContent = ''
@@ -63,11 +64,10 @@ let mouseUpHandler
 const toggleOverlay = (showOverlay: boolean) => {
   if (showOverlay) {
     wallpaper.style.display = 'none'
-    overlay.style.display = 'block'
     overlay.style.opacity = '1'
   } else {
     wallpaper.style.display = 'flex'
-    overlay.style.display = 'none'
+    overlay.style.opacity = '0'
   }
 }
 
@@ -85,7 +85,6 @@ window.api.onScreenCropStartV2(
     overlay.removeEventListener('mousedown', handleMouseDown)
     overlay.removeEventListener('mousemove', handleMouseMove)
     mouseUpHandler && overlay.removeEventListener('mouseup', mouseUpHandler)
-    overlay.style.display = 'block'
     overlay.style.cursor = 'default'
     toggleOverlay(false) // Show wallpaper when cropping ends
     alert('Success! Copied to clipboard.')
