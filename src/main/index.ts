@@ -9,7 +9,6 @@ function createMainWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
     transparent: true,
     frame: false,
-    alwaysOnTop: true,
     resizable: false,
     skipTaskbar: false,
     webPreferences: {
