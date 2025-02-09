@@ -49,12 +49,14 @@ const handleMouseUp = (cb: (rect: any) => void) => {
     width: Math.abs(endX - startX),
     height: Math.abs(endY - startY)
   }
+  overlay.style.display = 'none'
   overlay.style.maskImage = 'none'
   selectionBox.style.display = 'none'
   textOverlay.style.display = 'none'
-  dimensionText.textContent = 'N'
+  dimensionText.textContent = ''
   console.log('about to send crop-screen', rect)
   cb(rect)
+  
 }
 
 let mouseUpHandler
@@ -84,10 +86,13 @@ window.api.onScreenCropStartV2(
     overlay.removeEventListener('mousedown', handleMouseDown);
     overlay.removeEventListener('mousemove', handleMouseMove);
     mouseUpHandler && overlay.removeEventListener('mouseup', mouseUpHandler);
+    overlay.style.display = 'block'
     overlay.style.cursor = 'default';
     toggleOverlay(false); // Show wallpaper when cropping ends
+    alert('Success! Copied to clipboard.')
   },
   (err: string) => {
+    overlay.style.display = 'block'
     console.error(err);
     alert(err);
   }

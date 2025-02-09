@@ -12,7 +12,7 @@
   display: none; /* Ensure overlay is not displayed at the beginning */
   margin: 0;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 #selection-box {
@@ -39,7 +39,7 @@
 }
 
 #wallpaper {
-  background-color: rgba(0, 0, 0, 0.85);
+  background-color: rgba(0, 0, 0, 0.7);
   color: white;
   display: flex;
   justify-content: center;
