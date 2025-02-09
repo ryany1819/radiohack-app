@@ -9,7 +9,7 @@ function createMainWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
     transparent: true,
     frame: false,
-    resizable: false,
+    fullscreen: true,
     skipTaskbar: false,
     webPreferences: {
       nodeIntegration: true,

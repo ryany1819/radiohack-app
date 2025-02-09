@@ -24,7 +24,7 @@ const handleMouseMove = (e: MouseEvent) => {
   const top = Math.min(startY, endY)
   const width = Math.abs(endX - startX)
   const height = Math.abs(endY - startY)
-  const [px1, px2, py1, py2] = [left + 2, left + width - 2, top + 2,  top + height - 2]
+  const [px1, px2, py1, py2] = [left + 2, left + width - 2, top + 2, top + height - 2]
   overlay.style.maskImage = `
   linear-gradient(to right, black ${px1}px, transparent ${px1}px ${px2}px, black ${px2}px),
   linear-gradient(to bottom, black ${py1}px, transparent ${py1}px ${py2}px, black ${py2}px)`
@@ -34,7 +34,6 @@ const handleMouseMove = (e: MouseEvent) => {
   selectionBox.style.left = `${left}px`
   selectionBox.style.top = `${top}px`
   const dimensionTextHeight = dimensionText.offsetHeight // Get the height of the dimension-text element
-  textOverlay.style.display = 'block'
   textOverlay.style.display = 'block'
   textOverlay.style.left = `${left}px`
   textOverlay.style.top = `${top - dimensionTextHeight}px` // Position above the selection box
@@ -49,14 +48,13 @@ const handleMouseUp = (cb: (rect: any) => void) => {
     width: Math.abs(endX - startX),
     height: Math.abs(endY - startY)
   }
-  overlay.style.display = 'none'
+  overlay.style.opacity = '0'
   overlay.style.maskImage = 'none'
   selectionBox.style.display = 'none'
   textOverlay.style.display = 'none'
   dimensionText.textContent = ''
   console.log('about to send crop-screen', rect)
   cb(rect)
-  
 }
 
 let mouseUpHandler
@@ -64,36 +62,37 @@ let mouseUpHandler
 // Function to toggle between wallpaper and overlay
 const toggleOverlay = (showOverlay: boolean) => {
   if (showOverlay) {
-    wallpaper.style.display = 'none';
-    overlay.style.display = 'block';
+    wallpaper.style.display = 'none'
+    overlay.style.display = 'block'
+    overlay.style.opacity = '1'
   } else {
-    wallpaper.style.display = 'flex';
-    overlay.style.display = 'none';
+    wallpaper.style.display = 'flex'
+    overlay.style.display = 'none'
   }
-};
+}
 
 // @ts-ignore
 window.api.onScreenCropStartV2(
   (cb: (rect: { x: number; y: number; width: number; height: number }) => void) => {
-    toggleOverlay(true); // Show overlay when cropping starts
-    overlay.addEventListener('mousedown', handleMouseDown);
-    overlay.addEventListener('mousemove', handleMouseMove);
-    mouseUpHandler = () => handleMouseUp(cb);
-    overlay.addEventListener('mouseup', mouseUpHandler);
-    overlay.style.cursor = 'crosshair';
+    toggleOverlay(true) // Show overlay when cropping starts
+    overlay.addEventListener('mousedown', handleMouseDown)
+    overlay.addEventListener('mousemove', handleMouseMove)
+    mouseUpHandler = () => handleMouseUp(cb)
+    overlay.addEventListener('mouseup', mouseUpHandler)
+    overlay.style.cursor = 'crosshair'
   },
   () => {
-    overlay.removeEventListener('mousedown', handleMouseDown);
-    overlay.removeEventListener('mousemove', handleMouseMove);
-    mouseUpHandler && overlay.removeEventListener('mouseup', mouseUpHandler);
+    overlay.removeEventListener('mousedown', handleMouseDown)
+    overlay.removeEventListener('mousemove', handleMouseMove)
+    mouseUpHandler && overlay.removeEventListener('mouseup', mouseUpHandler)
     overlay.style.display = 'block'
-    overlay.style.cursor = 'default';
-    toggleOverlay(false); // Show wallpaper when cropping ends
+    overlay.style.cursor = 'default'
+    toggleOverlay(false) // Show wallpaper when cropping ends
     alert('Success! Copied to clipboard.')
   },
   (err: string) => {
-    overlay.style.display = 'block'
-    console.error(err);
-    alert(err);
+    console.error(err)
+    toggleOverlay(false) // Show wallpaper when cropping ends
+    alert(err)
   }
 )
